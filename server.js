@@ -1,7 +1,5 @@
 const express = require('express');
 const routes = require('./routes');
-// import sequelize connection
-// I wrote this import...
 const sequelize = require('./config/connection');
 
 const app = express();
@@ -12,7 +10,17 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(routes);
 
-// sync sequelize models to the database, then turn on the server
-app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}!`);
-});
+
+//Mycode
+// Sync Sequelize models to the MySQL database on server start
+sequelize.sync({ force: false }) // Set force to true to drop tables and recreate them (use with caution in production)
+  .then(() => {
+    console.log('Sequelize models synced to the database');
+    // Start the server after syncing
+    app.listen(PORT, () => {
+      console.log(`App listening on port ${PORT}!`);
+    });
+  })
+  .catch((error) => {
+    console.error('Error syncing Sequelize models:', error);
+  });
